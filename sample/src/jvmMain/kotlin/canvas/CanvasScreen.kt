@@ -40,7 +40,7 @@ fun CanvasScreen() {
                         Image.makeFromEncoded(it.bytes).toComposeImageBitmap()
                     )
                 }.getOrNull()
-            }.forEach(canvasState::add)
+            }.let(canvasState::addItems)
         }
     }
 

@@ -22,7 +22,7 @@ import androidx.compose.ui.zIndex
 fun <T> InfiniteCanvas(modifier: Modifier = Modifier, state: CanvasState<T> = rememberCanvasState()) = with(state) {
     Box(
         modifier
-            .background(Color.LightGray)
+            .background(backgroundColor)
             .pointerInput(Unit) {
                 detectTapGestures {
                     insertionPosition = it
@@ -40,11 +40,11 @@ fun <T> InfiniteCanvas(modifier: Modifier = Modifier, state: CanvasState<T> = re
     ) {
         Canvas(Modifier.fillMaxSize()) {
             drawRect(
-                if (items.size > 1) Color.White else Color.Unspecified,
-                topLeft + canvasOffset - padding,
+                if (items.size > 1) canvasColor else Color.Unspecified,
+                topLeft + canvasOffset - canvasPadding,
                 canvasSize.copy(
-                    width = canvasSize.width + (padding * 2f).x,
-                    height = canvasSize.height + (padding * 2f).y
+                    width = canvasSize.width + (canvasPadding * 2f).x,
+                    height = canvasSize.height + (canvasPadding * 2f).y
                 )
             )
         }
@@ -61,11 +61,16 @@ fun <T> InfiniteCanvas(modifier: Modifier = Modifier, state: CanvasState<T> = re
                             translationY = position.y + offsetY + canvasOffset.y
                         }
                         .pointerInput(Unit) {
+                            detectTapGestures {
+                                removeItem(index)
+                            }
+                        }
+                        .pointerInput(Unit) {
                             detectDragGestures(onDragCancel = {
                                 offsetX = 0f
                                 offsetY = 0f
                             }, onDragEnd = {
-                                updatePosition(index, Offset(offsetX, offsetY))
+                                updateItemPosition(index, Offset(offsetX, offsetY))
                                 offsetX = 0f
                                 offsetY = 0f
                             }) { change, (x, y) ->

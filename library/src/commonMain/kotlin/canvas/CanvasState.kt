@@ -3,19 +3,34 @@ package canvas
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun <T> rememberCanvasState(
     itemSize: Size = Size(64f, 64f),
-    padding: Offset = Offset.Zero,
+    backgroundColor: Color = Color.LightGray,
+    canvasColor: Color = Color.White,
+    canvasPadding: Offset = Offset.Zero,
     maxCanvasOffset: Offset = Offset.Zero,
     onCanvasClick: () -> Unit = {},
     content: @Composable (T) -> Unit = {},
-) = remember { CanvasState(itemSize, padding, maxCanvasOffset, onCanvasClick, content) }
+) = remember {
+    CanvasState(
+        itemSize,
+        backgroundColor,
+        canvasColor,
+        canvasPadding,
+        maxCanvasOffset,
+        onCanvasClick,
+        content
+    )
+}
 
 class CanvasState<T> constructor(
-    val itemSize: Size,
-    val padding: Offset,
+    private val itemSize: Size,
+    val backgroundColor: Color,
+    val canvasColor: Color,
+    val canvasPadding: Offset,
     val maxCanvasOffset: Offset,
     val onCanvasClick: () -> Unit,
     val content: @Composable (T) -> Unit,
@@ -48,14 +63,14 @@ class CanvasState<T> constructor(
 
     internal var insertionPosition by mutableStateOf(Offset.Zero)
 
-    fun add(data: T) {
-        items.add(CanvasItem(data, itemSize, insertionPosition))
+    fun addItems(data: Collection<T>) {
+        items.addAll(data.mapNotNull { CanvasItem(it, itemSize, insertionPosition) })
         insertionPosition = Offset.Zero
     }
 
-    internal fun updatePosition(index: Int, offset: Offset) {
+    internal fun updateItemPosition(index: Int, offset: Offset) {
         items[index] = items[index].copy(position = items[index].position + offset)
     }
 
-    internal fun remove(item: CanvasItem<T>) = items.remove(item)
+    internal fun removeItem(index: Int) = items.removeAt(index)
 }
